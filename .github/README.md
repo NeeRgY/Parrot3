@@ -1,54 +1,141 @@
-# Parrot 2
+<div align="center">
 
-_This is a continuation of Parrot! I started a personal fork in early Mist of
-Pandaria and have been slowly rewritting it since. Installing this should
-overwrite the directory for the original Parrot and continue to use your
-existing settings. If you have problems, just delete the Parrot directory at
-`Interface/AddOns/Parrot` and reinstall Parrot 2._
+# Parrot 3 - NeRgY Fork
 
-## Floating Combat Text of awesomeness.
+### Continued development of Parrot floating combat text for World of Warcraft
 
-Displays combat (damage, healing, auras) events as well as other events (loot,
-cooldown available, power change, repuation, kills, and more) as moving text
-and numbers across the screen.
+<img src="https://img.shields.io/github/v/release/NeeRgY/Parrot3?style=for-the-badge" />
+<img src="https://img.shields.io/github/last-commit/NeeRgY/Parrot3?style=for-the-badge" />
+<img src="https://img.shields.io/github/issues/NeeRgY/Parrot3?style=for-the-badge" />
+<br><br>
 
-Parrot also offers a trigger system to display messages and play sounds in
-reaction to a variety of things, like gaining a buff or dodging an attack.
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neergy)
 
-## FAQ
-**Q**: I created a custom trigger doing <something>. Is it worthy to be in
-Parrot's default triggers?  
-**A**: If you want to contribute a trigger that is useful for your class,
-please post a ticket where you describe the conditions you used set it up
-and I'll look at including it.
+**This is a community fork. Donations / tips support my maintenance, not the original Parrot authors.**
 
-**Q**: Parrot is not showing heals, but it's enabled in the options.  
-**A**: WoW displays every full overheal in the combat log (even for HoTs).
-That's why Parrot contains an option in Events to "Hide full overheals" which
-is enabled by default to avoid unnecessary spam.
+---
+<br>
 
-**Q**: How do I to use custom fonts and sounds in Parrot?  
-**A**: Parrot doesn't provide sounds or additional fonts (only the fonts
-included in WoW). For additional fonts and sounds please install SharedMedia.
-f you want to include your own custom sounds and fonts see the "INSTRUCTIONS
-for MyMedia.txt" in the SharedMedia folder.
+A maintained fork of **Parrot**, continued from **Parrot 2 by Neb (nebularg)**, originally by **ckknight**.
 
-**Q**: Whenever I reload or log back in again, Parrot hides Blizzard's default
-outgoing damage text (the one above the mob in question). Is there a way to
-avoid having to re-enable Blizzard's options all the time?  
-**A**: When enabled, Parrot manages the settings for Blizzard's floating combat
-text. You can manage these settings in the Parrot config.
+Merges the separate Retail and Classic builds into one addon with a dedicated TOC and code tree per game version.
 
-**Q**: Why is the stack count sometimes off when looting stackable items?  
-**A**: The problem is that the event for loot is triggered before or after the
-item was put in the bag depending on lag and may not have registered by the
-time we check the item's count.
+**Current version:** `v3.0.0`
 
-## Localization / Feature Requests / Reporting Bugs
-[Please use the ticket system](https://github.com/nebularg/Parrot2/issues) or
-[create a pull request](https://github.com/nebularg/Parrot2).
+</div>
 
-## Download
-[Curse](https://www.curseforge.com/wow/addons/parrot2)
-[WoWInterface](http://www.wowinterface.com/downloads/info24143-Parrot2.html)  
-[GitHub](https://github.com/nebularg/Parrot2/releases)
+---
+
+# About This Fork
+
+This repository is maintained by **NeRgY**.
+
+Lineage:
+
+1. [ckknight/Parrot](https://www.wowace.com/projects/parrot) — original Parrot
+2. [nebularg/Parrot2](https://github.com/nebularg/Parrot2) — Neb's continuation (Retail + Classic builds)
+3. **NeRgY** — merged both builds into Parrot 3 and continues maintenance
+
+Goals of this fork:
+
+- Keep Parrot working on **Retail 12.1.0 / 12.1.5**
+- One addon covering **Retail, Classic Era, TBC Classic and MoP Classic**
+- One TOC and one code tree per version so nothing cross-contaminates
+- Stay practical: stable, testable changes
+
+> This is **NOT** the official Parrot repository.
+
+---
+
+# Original Project Credits
+
+- Original Parrot: ckknight
+- Parrot 2: https://github.com/nebularg/Parrot2 (Neb, profalbert)
+
+Without their work, this fork would not exist.
+
+---
+
+# Supported Clients
+
+| Client | Interface | TOC |
+|--------|-----------|-----|
+| Retail (`12.1.0` / `12.1.5`) | `120100, 120105` | `Parrot3_Mainline.toc` |
+| Classic Era (`1.15.9`) | `11509` | `Parrot3_Vanilla.toc` |
+| TBC Classic (`2.5.6`) | `20506` | `Parrot3_TBC.toc` |
+| MoP Classic (`5.5.4`) | `50504` | `Parrot3_Mists.toc` |
+
+`Libs/` and `Locales/` are shared by all four TOCs. SavedVariables stay `ParrotDB`, so existing Parrot 2 settings carry over.
+
+---
+
+## NeRgY Fork Highlights
+
+- Retail and Classic builds of Parrot 2 merged into a single addon
+- Per-version TOC + fully separated code tree (`Mainline/`, `Vanilla/`, `TBC/`, `Mists/`)
+- **MoP Classic:** specialisation-aware trigger system ported from the Retail build, with a C_Spell compatibility shim
+- Interface bumped to current clients; renamed to Parrot 3
+- Every changed file carries an LGPL v2.1 change notice (see `CHANGELOG.md`)
+
+---
+
+# Installation
+
+Download the latest release, then copy the `Parrot3` folder into:
+
+- Retail: `World of Warcraft\_retail_\Interface\AddOns\Parrot3`
+- Classic Era: `World of Warcraft\_classic_era_\Interface\AddOns\Parrot3`
+- TBC: `World of Warcraft\_classic_\Interface\AddOns\Parrot3`
+
+Then `/reload` in-game. Options: `/parrot` or `/par`.
+
+## Important
+
+Do **NOT** download `Source code (zip)` / `Source code (tar.gz)` from GitHub tags.
+
+---
+
+# Contributing
+
+Bug reports and fixes welcome. When reporting an issue, include:
+
+- WoW version / client (Retail, Classic Era, TBC, MoP)
+- Addon version (`v3.0.0`)
+- Lua errors (BugSack / `/console scriptErrors 1`)
+- Reproduction steps
+
+---
+
+# Support
+
+- GitHub Issues: https://github.com/NeeRgY/Parrot3/issues
+- Repository: https://github.com/NeeRgY/Parrot3
+- Parrot 2 (upstream): https://github.com/nebularg/Parrot2
+
+---
+
+# Credits
+
+## Original Authors
+- ckknight
+- profalbert
+- nebularg (Neb) — Parrot 2
+
+## Current Fork Maintainer
+- NeRgY
+
+---
+
+# License
+
+Parrot 3 is released under the **GNU Lesser General Public License, version 2.1** — see [`LICENSE.txt`](LICENSE.txt), the same license as upstream.
+
+---
+
+# Disclaimer
+
+This project is unofficial and is not affiliated with Blizzard Entertainment.
+
+World of Warcraft is a trademark of Blizzard Entertainment.
+
+Use this addon at your own discretion.
