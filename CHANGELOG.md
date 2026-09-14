@@ -9,7 +9,7 @@ version 2.1** (see `LICENSE.txt`) — the same license as its upstream.
 
 ---
 
-## v3.0.0 (2026-09-10)
+## v3.0.0 (2026-09-14)
 
 The first Parrot 3 release. It merges Parrot 2's two separate builds into one
 addon, brings the code up to current game clients, refreshes the embedded
