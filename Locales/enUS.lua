@@ -1,7 +1,7 @@
 local debug = true
---@debug@
+--[==[@debug@
 debug = nil
---@end-debug@
+--@end-debug@]==]
 
 local L = LibStub("AceLocale-3.0"):NewLocale("Parrot", "enUS", true, debug)
 
@@ -220,7 +220,6 @@ L["Item buff gains"] = true
 L["Item cooldown ready"] = true
 L["Killing Blow!"] = true
 L["Killing blows"] = true
-L["Layering of the scrolling text relative to other frames."] = true
 L["Leave combat"] = true
 L["Left"] = true
 L["Left, clockwise"] = true
@@ -437,7 +436,6 @@ L["Sticky font shadow"] = true
 L["Sticky font size"] = true
 L["Sticky inherit font size"] = true
 L["Straight"] = true
-L["Strata"] = true
 L["Strikes"] = true
 L["Style"] = true
 L["Successful spell cast"] = true
@@ -605,3 +603,26 @@ L["[Text] (crit)"] = true
 L["[Text] (crushing)"] = true
 L["[Text] (glancing)"] = true
 L["[[Spell] ready!]"] = true
+
+L["Minimap icon"] = true
+L["Show a Parrot icon on the minimap."] = true
+
+-- Parrot 3 fork additions
+L["Settings"] = true
+L["Addon settings"] = true
+L["Language"] = true
+L["Automatic (client language)"] = true
+L["The language Parrot's interface uses. Takes effect after a UI reload."] = true
+L["Reload your interface now to apply the language change?"] = true
+L["Changelog"] = true
+L["About"] = true
+L["Maintained by"] = true
+L["Floating Combat Text of awesomeness."] = true
+L["A community fork of Parrot 2 by Neb, based on the original Parrot by ckknight. Not affiliated with Blizzard Entertainment."] = true
+L["Donations support fork maintenance, not the original authors."] = true
+L["Click a field and press Ctrl+C to copy."] = true
+L["Combat log access is blocked this session (likely an addon conflict) - switching to a simplified, approximate damage/heal feed. /parrot errors has no details for this since it isn't a Lua error."] = true
+L["Incoming damage (fallback)"] = true
+L["Incoming healing (fallback)"] = true
+L["Outgoing damage (fallback)"] = true
+L["Approximate - shown only when Parrot could not get direct combat-log access this session (see /parrot errors)."] = true

@@ -1,0 +1,16 @@
+# Normalise line endings: LF in the repo, checked out as-is on each platform.
+* text=auto eol=lf
+
+*.lua   text eol=lf
+*.xml   text eol=lf
+*.toc   text eol=lf
+*.md    text eol=lf
+
+# Treat bundled libraries as vendored code (collapsed in diffs, excluded from language stats).
+Libs/**            linguist-vendored
+Locales/**         linguist-vendored
+
+*.tga   binary
+*.blp   binary
+*.ogg   binary
+*.mp3   binary

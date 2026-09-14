@@ -1,0 +1,81 @@
+## Interface: 120100, 120105
+## Title: Parrot 3
+## Notes: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-esES: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-esMX: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-deDE: Scrollender Kampftext der Ungeheuerlichkeit. Kraaaah!
+## Notes-frFR: Texte de combat flottant. Croac. Coco veut un gâteau.
+## Notes-itIT: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-koKR: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-ptBR: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-ruRU: Мощный плавающий текст боя.
+## Notes-zhCN: 绝妙的浮动战斗文本。来人，喂公子吃饼。真香。
+## Notes-zhTW: 絕妙的戰鬥記錄指示器。
+## Author: NeRgY
+## Version: v3.0.0
+## IconTexture: Interface\Icons\Spell_Nature_ForceOfNature
+## Group: Parrot 3
+## Category-enUS: Combat
+## Category-deDE: Kampf
+## Category-frFR: Combat
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-itIT: Combattimento
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-koKR: 전투
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
+## AddonCompartmentFunc: Parrot3_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: Parrot3_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: Parrot3_OnAddonCompartmentLeave
+
+## X-Credits: ckknight (Parrot), profalbert, nebularg (Parrot 2)
+## X-Fork-Maintainer: NeRgY
+## X-Category: Combat
+## X-License: LGPLv2.1
+## X-Website: (add your Parrot 3 project page here)
+#
+# Parrot 3 fork maintainer: NeRgY.
+# Parrot 3 is a fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
+# itself based on the original Parrot by ckknight. Licensed under GNU LGPL v2.1
+# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-10: the separate
+# Retail and Classic builds of Parrot 2 were merged into one addon with a single
+# TOC and code tree per game version; Interface, Title, Version and file paths
+# in this TOC were adjusted; modern list metadata (IconTexture, Category-*, Group,
+# AddonCompartmentFunc) was added. See CHANGELOG.md for the full list of changes.
+#
+
+## SavedVariables: ParrotDB
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDDI-1.0, LibSink-2.0, LibDualSpec-1.0
+
+Mainline\Code\_Sandbox_Save.lua
+Mainline\Code\_Sandbox_On.lua
+Mainline\embeds.xml
+Mainline\Code\PreLocale.lua
+locales.xml
+Mainline\Code\PostLocale.lua
+
+Mainline\Code\Parrot.lua
+Mainline\Code\API.lua
+Mainline\Code\Skin.lua
+Mainline\Code\AnimationStyles.lua
+Mainline\Code\CombatEvents.lua
+Mainline\Code\Display.lua
+Mainline\Code\ScrollAreas.lua
+Mainline\Code\Suppressions.lua
+Mainline\Code\TriggerConditions.lua
+Mainline\Code\Triggers.lua
+Mainline\Code\About.lua
+
+Mainline\Data\AnimationStyles.lua
+Mainline\Data\CombatEvents.lua
+Mainline\Code\CombatFeedFallback.lua
+Mainline\Data\TriggerConditions.lua
+Mainline\Data\Auras.lua
+Mainline\Data\Cooldowns.lua
+Mainline\Data\Loot.lua
+Mainline\Data\PointGains.lua
+Mainline\Data\CombatStatus.lua
+
+Mainline\Code\_Sandbox_Off.lua
