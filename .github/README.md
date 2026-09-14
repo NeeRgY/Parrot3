@@ -9,6 +9,11 @@
 <img src="https://img.shields.io/github/issues/NeeRgY/Parrot3?style=for-the-badge" />
 <br><br>
 
+[![Curseforge](https://img.shields.io/curseforge/dt/1689474?label=CurseForge&color=F16436&style=for-the-badge)](https://www.curseforge.com/wow/addons/parrot-3)
+[![Wago](https://img.shields.io/badge/Wago-Key%20Herald-C1272D?style=for-the-badge&logo=wago&logoColor=white)](https://addons.wago.io/addons/key-herald)
+[![Discord](https://img.shields.io/discord/1538823169446645762?style=for-the-badge&label=Discord&color=5865F2)](https://discord.gg/YjfyDKckCS)
+<br>
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neergy)
 
 **This is a community fork. Donations / tips support my maintenance, not the original Parrot authors.**
