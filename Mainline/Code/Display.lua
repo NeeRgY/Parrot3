@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	CHANGED for the Parrot 3 fork on 2026-09-10:
+	CHANGED for the Parrot 3 fork on 2026-09-14:
 	  restored BackdropTemplate on the flash frame (retail 9.0+ fix), corrected backdrop alpha, and made Display_Update only allocate the overlap list for overlapping animation styles.
 ----------------------------------------------------------------------------]]
 local _, ns = ...

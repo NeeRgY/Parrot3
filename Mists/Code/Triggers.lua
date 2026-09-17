@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	CHANGED for the Parrot 3 fork on 2026-09-10:
+	CHANGED for the Parrot 3 fork on 2026-09-14:
 	  This file is the Retail build's Triggers.lua, adapted for MoP Classic
 	  (5.5.4). Spell lookups go through Parrot.API (client differences live in
 	  Code/API.lua); restored the `ns.addon` load guard.

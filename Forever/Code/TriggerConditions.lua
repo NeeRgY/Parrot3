@@ -1,16 +1,7 @@
---[[----------------------------------------------------------------------------
-	Parrot 3 - fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
-	itself based on the original Parrot by ckknight.
-	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
-
-	CHANGED for the Parrot 3 fork on 2026-09-14:
-	  Taken from the Retail build for the MoP Classic (5.5.4) build so its
-	  trigger conditions match the spec-aware Triggers.lua. Restored the
-	  `ns.addon` load guard.
-------------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
 if not Parrot then return end
+
 local module = Parrot:NewModule("TriggerConditions", "AceEvent-3.0")
 
 local Parrot_Triggers

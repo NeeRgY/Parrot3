@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	NEW in the Parrot 3 fork on 2026-09-10:
+	NEW in the Parrot 3 fork on 2026-09-14:
 	  The "Changelog" and "About" buttons at the bottom-left of the options
 	  window, and the two custom popups they open. Pure UI, no saved variables.
 ------------------------------------------------------------------------------]]
@@ -20,14 +20,18 @@ local C, F = UI.C, UI.F
 -- Content
 ----------------------------------------------------------------------
 local VERSION = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Parrot3", "Version"))
-	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.0"
+	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.1"
 
 local G = "|cff4dc78d"   -- accent green
 local X = "|r"
 local D = "|cff808080"   -- dim
 
 local CHANGELOG = [[
-]] .. G .. [[v3.0.0  (2026-09-10)]] .. X .. [[
+]] .. G .. [[v3.0.1  (2026-09-17)]] .. X .. [[
+
+Added WoW: Forever support (client version 1.60.1).
+
+]] .. G .. [[v3.0.0  (2026-09-14)]] .. X .. [[
 
 The first Parrot 3 release. Parrot 3 is a maintained fork of Parrot 2 by Neb,
 itself based on the original Parrot by ckknight. Fork maintainer: NeRgY.

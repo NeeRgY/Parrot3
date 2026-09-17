@@ -196,7 +196,7 @@ GitHub / Ko-fi / Discord / Curseforge / Parrot 2 links.
 
 ---
 
-### Changed files (LGPL v2.1 §2(b) notices, all dated 2026-09-10)
+### Changed files (LGPL v2.1 §2(b) notices, all dated 2026-09-14)
 
 New: the four `Parrot3_*.toc` files, `*/embeds.xml`, `*/Code/API.lua`,
 `*/Code/Skin.lua`, `*/Code/About.lua`, `*/Code/PreLocale.lua`,
@@ -215,6 +215,12 @@ Modified from the Parrot 2 build: `*/Code/Parrot.lua`, `*/Code/Display.lua`,
 Everything else under `Mainline/`, `Vanilla/`, `TBC/`, `Mists/`, `Locales/`
 and the non-Ace, non-Sink `Libs/` is an unmodified copy of the corresponding
 Parrot 2 build.
+
+---
+
+## v3.0.1 (2026-09-17)
+
+- Added WoW: Forever support (client version `1.60.1`).
 
 ---
 

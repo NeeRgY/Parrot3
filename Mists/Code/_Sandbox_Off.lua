@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	NEW in the Parrot 3 fork on 2026-09-10 - taint sandbox, part 3 of 3.
+	NEW in the Parrot 3 fork on 2026-09-14 - taint sandbox, part 3 of 3.
 	Put the session-wide LibStub back for everyone else. Parrot keeps using its
 	private copy through ns.LibStub (its runtime files declare
 	`local LibStub = ns.LibStub`).

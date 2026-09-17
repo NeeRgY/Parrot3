@@ -1,18 +1,14 @@
---[[--------------------------------------------------------------------------
-	Parrot 3 - fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
-	itself based on the original Parrot by ckknight.
-	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
-
-	CHANGED for the Parrot 3 fork on 2026-09-14:
-	  fall back to the item links name text when the client has not cached the item yet.
-----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
+if not Parrot then return end
+
 local module = Parrot:NewModule("PointGains")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
 local newDict, newList = Parrot.newDict, Parrot.newList
 local Deformat = Parrot.Deformat
+
+local wow_classic_era = Parrot.wow_classic_era
 
 local currentXP = 0
 
@@ -21,31 +17,63 @@ function module:OnEnable()
 end
 
 -- Currency
-local CURRENCY_GAINED = _G.CURRENCY_GAINED
-local CURRENCY_GAINED_MULTIPLE = _G.CURRENCY_GAINED_MULTIPLE
-local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
+-- local CURRENCY_GAINED = _G.CURRENCY_GAINED
+-- local CURRENCY_GAINED_MULTIPLE = _G.CURRENCY_GAINED_MULTIPLE
+-- local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
 
-local function parseCurrencyUpdate(chatmsg)
-	local currency, amount = Deformat(chatmsg, CURRENCY_GAINED_MULTIPLE)
-	if not currency then
-		currency = Deformat(chatmsg, CURRENCY_GAINED)
-	end
+-- local function parseCurrencyUpdate(chatmsg)
+-- 	local currency, amount = Deformat(chatmsg, CURRENCY_GAINED_MULTIPLE)
+-- 	if not currency then
+-- 		currency = Deformat(chatmsg, CURRENCY_GAINED)
+-- 	end
 
-	if currency then
-		local currencyInfo = C_CurrencyInfo.GetCurrencyInfoFromLink(currency)
-		local name = currencyInfo.name
-		if name == "" then return end
-		local color = ITEM_QUALITY_COLORS[currencyInfo.quality]
-		if color then
-			name = ("%s%s|r"):format(color.hex, name)
+-- 	local info = currency and C_CurrencyInfo.GetCurrencyInfoFromLink(currency)
+-- 	if info then
+-- 		local name = info.name
+-- 		if name == "" then return end
+-- 		local color = ITEM_QUALITY_COLORS[info.quality]
+-- 		if color then
+-- 			name = ("%s%s|r"):format(color.hex, name)
+-- 		end
+-- 		return newDict(
+-- 			"currency", name,
+-- 			"amount", amount,
+-- 			"total", info.totalEarned,
+-- 			"icon", info.iconFileID
+-- 		)
+-- 	end
+-- end
+
+-- local honorCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CLASSIC_HONOR_CURRENCY_ID)
+-- local arenaCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CLASSIC_ARENA_POINTS_CURRENCY_ID)
+
+local function parseHonorGain(chatmsg)
+	local amount = tonumber(chatmsg:match("%d+"))
+	if amount then
+		if wow_classic_era then
+			local total = GetPVPSessionStats()
+			local _, rank = GetPVPRankInfo(UnitPVPRank("player"))
+			local icon = nil
+			if rank and rank > 0 then
+				icon = ("Interface\\PvPRankBadges\\PvPRank%02d"):format(rank)
+			end
+			return newDict(
+				"currency", _G.HONOR,
+				"amount", amount,
+				"total", total,
+				"icon", icon
+			)
+		else
+			local info = C_CurrencyInfo.GetCurrencyInfo(1901)
+			return newDict(
+				"currency", info.name,
+				"amount", amount,
+				"total", info.totalEarned,
+				"icon", info.iconFileID
+			)
 		end
-		return newDict(
-			"currency", name,
-			"amount", amount or 1,
-			"total", currencyInfo.quantity,
-			"icon", currencyInfo.iconFileID
-		)
 	end
+	return nil
 end
 
 Parrot:RegisterCombatEvent{
@@ -64,11 +92,11 @@ Parrot:RegisterCombatEvent{
 		Currency = L["Name of the currency"],
 		Amount = L["The amount of currency gained."],
 		Total = L["Your total amount of the currency."],
-
 	},
 	color = "7f7fb2", -- blue-gray
 	events = {
-		CHAT_MSG_CURRENCY = { parse = parseCurrencyUpdate },
+		-- CHAT_MSG_CURRENCY = { parse = parseCurrencyUpdate },
+		CHAT_MSG_COMBAT_HONOR_GAIN = { parse = parseHonorGain },
 	}
 }
 
@@ -77,9 +105,6 @@ Parrot:RegisterThrottleType("Reputation gains", L["Reputation gains"], 0.1, true
 
 local REPUTATION = _G.REPUTATION
 local FACTION_STANDING_INCREASED = _G.FACTION_STANDING_INCREASED
-local FACTION_STANDING_INCREASED_ACH_BONUS = _G.FACTION_STANDING_INCREASED_ACH_BONUS
-local FACTION_STANDING_INCREASED_BONUS = _G.FACTION_STANDING_INCREASED_BONUS
-local FACTION_STANDING_INCREASED_DOUBLE_BONUS = _G.FACTION_STANDING_INCREASED_DOUBLE_BONUS
 local FACTION_STANDING_DECREASED = _G.FACTION_STANDING_DECREASED
 
 local function repThrottleFunc(info)
@@ -92,15 +117,6 @@ end
 
 local function parseRepGain(chatmsg)
 	local faction, amount = Deformat(chatmsg, FACTION_STANDING_INCREASED)
-	if not faction then
-		faction, amount = Deformat(chatmsg, FACTION_STANDING_INCREASED_ACH_BONUS)
-	end
-	if not faction then
-		faction, amount = Deformat(chatmsg, FACTION_STANDING_INCREASED_BONUS)
-	end
-	if not faction then
-		faction, amount = Deformat(chatmsg, FACTION_STANDING_INCREASED_DOUBLE_BONUS)
-	end
 	if faction and amount then
 		local info = newList()
 		info.amount = amount
@@ -235,43 +251,40 @@ Parrot:RegisterCombatEvent{
 }
 
 -- Artifact Power gains
-local ARTIFACT_XP_GAIN = _G.ARTIFACT_XP_GAIN
+-- local ARTIFACT_XP_GAIN = _G.ARTIFACT_XP_GAIN
 
-local function parseAPUpdate(chatmsg)
-	local itemLink, amount = Deformat(chatmsg, ARTIFACT_XP_GAIN)
-	if itemLink and amount then
-		local name, _, quality, _, _, _, _, _, _, texture = GetItemInfo(itemLink)
-		if not name then
-			name = itemLink:match("%[(.-)%]") or itemLink
-		end
-		local color = quality and ITEM_QUALITY_COLORS[quality]
-		if color then
-			name = ("%s%s|r"):format(color.hex, name)
-		end
-		return newDict(
-			"name", name,
-			"amount", amount,
-			"icon", texture
-		)
-	end
-end
+-- local function parseAPUpdate(chatmsg)
+-- 	local itemLink, amount = Deformat(chatmsg, ARTIFACT_XP_GAIN)
+-- 	if itemLink and amount then
+-- 		local name, _, quality, _, _, _, _, _, _, texture = GetItemInfo(itemLink)
+-- 		local color = ITEM_QUALITY_COLORS[quality]
+-- 		if color then
+-- 			name = ("%s%s|r"):format(color.hex, name)
+-- 		end
+-- 		return newDict(
+-- 			"name", name,
+-- 			"amount", amount,
+-- 			"icon", texture
+-- 		)
+-- 	end
+-- end
 
-Parrot:RegisterCombatEvent{
-	category = "Notification",
-	name = "Artifact power gains",
-	localName = L["Artifact power gains"],
-	defaultTag = "[Name] +[Amount] " .. L["AP"],
-	tagTranslations = {
-		Name = "name",
-		Amount = "amount",
-		Icon = "icon",
-	},
-	tagTranslationsHelp = {
-		Name = L["The name of the item."],
-		Amount = L["The amount of experience points gained."],
-	},
-	color = "e5cc99",
-	events = {
-		CHAT_MSG_SYSTEM = { parse = parseAPUpdate },
-	},
-}
+-- Parrot:RegisterCombatEvent{
+-- 	category = "Notification",
+-- 	name = "Artifact power gains",
+-- 	localName = L["Artifact power gains"],
+-- 	defaultTag = "[Name] +[Amount] " .. L["AP"],
+-- 	tagTranslations = {
+-- 		Name = "name",
+-- 		Amount = "amount",
+-- 		Icon = "icon",
+-- 	},
+-- 	tagTranslationsHelp = {
+-- 		Name = L["The name of the item."],
+-- 		Amount = L["The amount of experience points gained."],
+-- 	},
+-- 	color = "e5cc99",
+-- 	events = {
+-- 		CHAT_MSG_SYSTEM = { parse = parseAPUpdate },
+-- 	},
+-- }

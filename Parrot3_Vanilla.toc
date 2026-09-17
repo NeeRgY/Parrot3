@@ -12,7 +12,7 @@
 ## Notes-zhCN: 绝妙的浮动战斗文本。来人，喂公子吃饼。真香。
 ## Notes-zhTW: 絕妙的戰鬥記錄指示器。
 ## Author: NeRgY
-## Version: v3.0.0
+## Version: v3.0.1
 ## IconTexture: Interface\Icons\Spell_Nature_ForceOfNature
 ## Group: Parrot 3
 ## Category-enUS: Combat
@@ -39,7 +39,7 @@
 # Parrot 3 fork maintainer: NeRgY.
 # Parrot 3 is a fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
 # itself based on the original Parrot by ckknight. Licensed under GNU LGPL v2.1
-# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-10: the separate
+# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-14: the separate
 # Retail and Classic builds of Parrot 2 were merged into one addon with a single
 # TOC and code tree per game version; Interface, Title, Version and file paths
 # in this TOC were adjusted; modern list metadata (IconTexture, Category-*, Group,

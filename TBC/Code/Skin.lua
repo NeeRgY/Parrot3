@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	NEW in the Parrot 3 fork on 2026-09-10:
+	NEW in the Parrot 3 fork on 2026-09-14:
 	  A cosmetic skin for the AceGUI-3.0 widgets used by the options window.
 	  It only restyles frames/textures/fonts - the config itself is still built
 	  and driven by AceConfigDialog, so every feature (the "+" side tabs, the

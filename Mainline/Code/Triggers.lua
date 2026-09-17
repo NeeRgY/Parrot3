@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	CHANGED for the Parrot 3 fork on 2026-09-10:
+	CHANGED for the Parrot 3 fork on 2026-09-14:
 	  resolve trigger icons through Parrot.API (C_Item/C_Spell on retail).
 ----------------------------------------------------------------------------]]
 local _, ns = ...

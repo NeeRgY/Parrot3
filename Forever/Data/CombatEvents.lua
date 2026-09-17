@@ -1,13 +1,7 @@
---[[--------------------------------------------------------------------------
-	Parrot 3 - fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
-	itself based on the original Parrot by ckknight.
-	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
-
-	CHANGED for the Parrot 3 fork on 2026-09-14:
-	  combo points via Parrot.API.GetComboPoints (handles the vehicle path).
-----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
+if not Parrot then return end
+
 local mod = Parrot:NewModule("CombatEventsData")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
@@ -15,14 +9,11 @@ local newList = Parrot.newList
 
 local bit_bor, bit_band = bit.bor, bit.band
 local UnitGUID, UnitPower = UnitGUID, UnitPower
-local API = Parrot.API
-local GetSpellTexture = API.GetSpellTexture
 
 local PET = _G.PET
 local INTERRUPT = _G.INTERRUPT
 local PLAYERSTAT_MELEE_COMBAT = _G.PLAYERSTAT_MELEE_COMBAT
 local UNKNOWN = _G.UNKNOWN
-local ALTERNATE_POWER_INDEX = _G.ALTERNATE_POWER_INDEX
 
 local db
 local playerGUID = UnitGUID("player")
@@ -44,54 +35,40 @@ local SchoolParser = {
 	[2]  = "Holy",
 	[4]  = "Fire",
 	[8]  = "Nature",
-	[9]  = "Stormstrike",
 	[16] = "Frost",
 	[20] = "FrostFire",
 	[24] = "Froststorm",
 	[32] = "Shadow",
-	[33] = "Shadowstrike",
-	[34] = "Twilight",
-	[36] = "Shadowflame",
-	[40] = "Plague",
-	[48] = "Shadowfrost",
+	[40] = "Shadowstorm",
 	[64] = "Arcane",
-	[65] = "Spellstrike",
-	[68] = "Spellfire",
-	[72] = "Astral",
-	[80] = "Spellfrost",
-	[96] = "Spellshadow",
-	[28] = "Elemental",
-	[124] = "Chaos", -- Chromatic
-	[126] = "Magic",
-	[127] = "Chaos",
 }
 
-local PowerTypeParser = setmetatable({
+local PowerTypeParser = {
 	[-2] = _G.HEALTH,
 	-- [-1] = _G.NONE,
 	[0] = _G.MANA,
 	[1] = _G.RAGE,
 	[2] = _G.FOCUS,
 	[3] = _G.ENERGY,
-	[4] = _G.COMBO_POINTS,
+	[4] = _G.HAPPINESS,
 	[5] = _G.RUNES,
 	[6] = _G.RUNIC_POWER,
-	[7] = _G.SOUL_SHARDS,
-	[8] = _G.LUNAR_POWER,
-	[9] = _G.HOLY_POWER,
-	[11] = _G.MAELSTROM,
-	[12] = _G.CHI,
-	[13] = _G.INSANITY,
-	[16] = _G.ARCANE_CHARGES,
-	[17] = _G.FURY,
-	[18] = _G.PAIN,
-}, { __index = function(self, key)
-	if key == ALTERNATE_POWER_INDEX then
-		local barID = UnitPowerBarID("player")
-		local name = GetUnitPowerBarStringsByID(barID)
-		return name
-	end
-end })
+	[14] = _G.COMBO_POINTS,
+}
+
+-- lookup-table for damage-types
+local LS = {
+	["Physical"] = _G.STRING_SCHOOL_PHYSICAL,
+	["Holy"] = _G.STRING_SCHOOL_HOLY,
+	["Fire"] = _G.STRING_SCHOOL_FIRE,
+	["Nature"] = _G.STRING_SCHOOL_NATURE,
+	["Frost"] = _G.STRING_SCHOOL_FROST,
+	["Frostfire"] = _G.STRING_SCHOOL_FROSTFIRE,
+	["Froststorm"] = _G.STRING_SCHOOL_FROSTSTORM,
+	["Shadow"] = _G.STRING_SCHOOL_SHADOW,
+	["Shadowstorm"] = _G.STRING_SCHOOL_SHADOWSTORM,
+	["Arcane"] = _G.STRING_SCHOOL_ARCANE,
+}
 
 local coloredDamageAmount = function(info)
 	local damageType = SchoolParser[info.damageType or 1]
@@ -113,10 +90,12 @@ local realDamageAmount = function(info)
 end
 
 local damageTypeString = function(info)
-	if not info.damageType or info.damageType == 0 then
+	local damageType = SchoolParser[info.damageType]
+	if damageType then
+		return LS[damageType] or tostring(damageType)
+	else
 		return ""
 	end
-	return GetSchoolString(info.damageType) or _G.STRING_SCHOOL_UNKNOWN
 end
 
 local sanitizedPowerAmount = function(info)
@@ -181,14 +160,6 @@ end
 -- functions to retrieve abbrivated spellnames
 --]]
 local function retrieveAbilityName(info)
-	-- Parrot 3: an empty ability name (e.g. Code/CombatFeedFallback.lua, which
-	-- has no real spell name to give) used to leave a bare "()" in tags like
-	-- "([Skill]) +[Amount]" - __NONAME__ is the same sentinel
-	-- retrieveSourceName/retrieveDestName already use for exactly this, and
-	-- is stripped (parens and all) a few lines down in runEvent().
-	if not info.abilityName or info.abilityName == "" then
-		return "__NONAME__"
-	end
 	return Parrot:GetAbbreviatedSpell(info.abilityName)
 end
 
@@ -201,19 +172,14 @@ end
 -- they tend to use a different icon from the original spell, which annoys some
 -- people.
 --]]
-local dumbTriggerSpellOverride = {
-	[22482] = GetSpellTexture(13877), -- Blade Flurry
-	[5374] = GetSpellTexture(1329), -- Mutilate
-	[27576] = GetSpellTexture(1329), -- Mutilate Off-Hand
-	[222031] = GetSpellTexture(162794), -- Chaos Strike
-	[199547] = GetSpellTexture(162794), -- Chaos Strike
-}
+-- local dumbTriggerSpellOverride = {
+-- }
 
 --[[
 -- helperfunction to retrieve an icon
 --]]
 local function retrieveIconFromAbilityName(info)
-	return dumbTriggerSpellOverride[info.spellID] or GetSpellTexture(info.spellID or info.abilityName)
+	return GetSpellTexture(info.spellID or info.abilityName) -- dumbTriggerSpellOverride[info.spellID] or
 end
 
 --[[
@@ -425,34 +391,34 @@ local short_format_texts = {
 }
 
 local function damageThrottleFunc(info)
-	local LS = db.useShortThrottleText and short_format_texts or long_format_texts
+	local texts = db.useShortThrottleText and short_format_texts or long_format_texts
 	local numNorm = info.throttleCount_isCrit_false or 0
 	local numCrit = info.throttleCount_isCrit_true or 0
 	info.isCrit = numCrit > 0
 	if numNorm == 1 then
 		if numCrit == 1 then
-			return LS[" (%d hit, %d crit)"]:format(1, 1)
+			return texts[" (%d hit, %d crit)"]:format(1, 1)
 		elseif numCrit == 0 then
 			-- just one hit
 			return nil
 		else -- >= 2
-			return LS[" (%d hit, %d crits)"]:format(1, numCrit)
+			return texts[" (%d hit, %d crits)"]:format(1, numCrit)
 		end
 	elseif numNorm == 0 then
 		if numCrit < 2 then
 			-- just one crit
 			return nil
 		else -- >= 2
-			return LS[" (%d crits)"]:format(numCrit)
+			return texts[" (%d crits)"]:format(numCrit)
 		end
 	else -- >= 2
 		if numCrit == 1 then
-			return LS[" (%d hits, %d crit)"]:format(numNorm, 1)
+			return texts[" (%d hits, %d crit)"]:format(numNorm, 1)
 		elseif numCrit == 0 then
 			-- just one hit
-			return LS[" (%d hits)"]:format(numNorm)
+			return texts[" (%d hits)"]:format(numNorm)
 		else -- >= 2
-			return LS[" (%d hits, %d crits)"]:format(numNorm, numCrit)
+			return texts[" (%d hits, %d crits)"]:format(numNorm, numCrit)
 		end
 	end
 end
@@ -467,34 +433,34 @@ local function missThrottleFunc(info)
 end
 
 local healThrottleFunc = function(info)
-	local LS = db.useShortThrottleText and short_format_texts or long_format_texts
+	local texts = db.useShortThrottleText and short_format_texts or long_format_texts
 	local numNorm = info.throttleCount_isCrit_false or 0
 	local numCrit = info.throttleCount_isCrit_true or 0
 	info.isCrit = numCrit > 0
 	if numNorm == 1 then
 		if numCrit == 1 then
-			return LS[" (%d heal, %d crit)"]:format(1, 1)
+			return texts[" (%d heal, %d crit)"]:format(1, 1)
 		elseif numCrit == 0 then
 			-- just one hit
 			return nil
 		else -- >= 2
-			return LS[" (%d heal, %d crits)"]:format(1, numCrit)
+			return texts[" (%d heal, %d crits)"]:format(1, numCrit)
 		end
 	elseif numNorm == 0 then
 		if numCrit < 2 then
 			-- just one crit
 			return nil
 		else -- >= 2
-			return LS[" (%d crits)"]:format(numCrit)
+			return texts[" (%d crits)"]:format(numCrit)
 		end
 	else -- >= 2
 		if numCrit == 1 then
-			return LS[" (%d heals, %d crit)"]:format(numNorm, 1)
+			return texts[" (%d heals, %d crit)"]:format(numNorm, 1)
 		elseif numCrit == 0 then
 			-- just one hit
-			return LS[" (%d heals)"]:format(numNorm)
+			return texts[" (%d heals)"]:format(numNorm)
 		else -- >= 2
-			return LS[" (%d heals, %d crits)"]:format(numNorm, numCrit)
+			return texts[" (%d heals, %d crits)"]:format(numNorm, numCrit)
 		end
 	end
 end
@@ -763,14 +729,13 @@ Parrot:RegisterCombatEvent{
 	},
 	tagTranslations = {
 		Name = retrieveSourceName,
-		Amount = damageAmount,
-		Icon = retrieveIconFromAbilityName,
+		Amount = coloredDamageAmount,
 	},
 	tagTranslationsHelp = {
 		Name = L["The name of the enemy that attacked you."],
 		Amount = L["The amount of damage done."],
 	},
-	color = "ff0000", -- red (reverted back from the earlier yellow-for-everything change; only Outgoing stays yellow)
+	color = "ff0000", -- red
 	canCrit = true,
 	filterType = { "Incoming damage", 'amount' },
 	throttle = meleeThrottle,
@@ -1182,7 +1147,7 @@ Parrot:RegisterCombatEvent{
 	},
 	tagTranslations = {
 		Name = retrieveSourceName,
-		Amount = damageAmount,
+		Amount = coloredDamageAmount,
 	},
 	tagTranslationsHelp = {
 		Name = L["The name of the enemy that attacked your pet."],
@@ -1449,14 +1414,13 @@ Parrot:RegisterCombatEvent{
 	},
 	tagTranslations = {
 		Name = retrieveDestName,
-		Amount = damageAmount,
-		Icon = retrieveIconFromAbilityName,
+		Amount = coloredDamageAmount,
 	},
 	tagTranslationsHelp = {
 		Name = L["The name of the enemy you attacked."],
 		Amount = L["The amount of damage done."],
 	},
-	color = "ffff00", -- yellow (Parrot 3 default; was white)
+	color = "ffffff", -- white
 	canCrit = true,
 	filterType = { "Outgoing damage", 'amount' },
 	throttle = meleeThrottle,
@@ -2181,15 +2145,14 @@ Parrot:RegisterCombatEvent{
 
 do
 	local function getMaxCP()
-		local max = UnitPowerMax("player", 4) or 5
-		local real_max = max
-		if max == 8 then max = 5 end -- Anticipation talent: 8 CP but finishers still use a max of 5
-		return max, real_max
+		local max = UnitPowerMax("player", 14) or 5
+		if max == 0 then max = 5 end
+		return max
 	end
 
 	local cur = 0
 	local function parseCPGain()
-		local num = API.GetComboPoints()
+		local num = UnitPower("player", 14)
 		if cur == num then return end
 		cur = num
 		if num > 0 and num < getMaxCP() then
@@ -2199,10 +2162,10 @@ do
 
 	local prev = 0
 	local function parseCPFull()
-		local num = API.GetComboPoints()
-		local max, real_max = getMaxCP()
+		local num = UnitPower("player", 14)
+		local max = getMaxCP()
 		local t = GetTime()
-		if num == real_max and t-prev < 0.1 then return end -- UNIT_POWER fires twice at max
+		if num == max and t-prev < 0.1 then return end -- UNIT_POWER fires twice at max
 		prev = t
 		if num >= max then
 			return newList(num)

@@ -1,4 +1,4 @@
-## Interface: 20506
+## Interface: 16001
 ## Title: Parrot 3
 ## Notes: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
 ## Notes-esES: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
@@ -39,42 +39,45 @@
 # Parrot 3 fork maintainer: NeRgY.
 # Parrot 3 is a fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
 # itself based on the original Parrot by ckknight. Licensed under GNU LGPL v2.1
-# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-14: the separate
-# Retail and Classic builds of Parrot 2 were merged into one addon with a single
-# TOC and code tree per game version; Interface, Title, Version and file paths
-# in this TOC were adjusted; modern list metadata (IconTexture, Category-*, Group,
-# AddonCompartmentFunc) was added. See CHANGELOG.md for the full list of changes.
+# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-17: added this
+# tree for WoW: Forever (client build 1.60.1, Interface 16001) - Forever is
+# built on the Vanilla Classic Era API surface (~1.15.x), so this tree is a
+# straight copy of the Vanilla/ code tree with only the Interface number
+# changed. Not yet confirmed against a live Forever client - Blizzard has
+# published no official addon API notes for Forever as of this tree's
+# creation (the beta only opened on 2026-09-17). Revisit once the beta is
+# actually testable. See CHANGELOG.md for the full list of changes.
 #
 
 ## SavedVariables: ParrotDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDDI-1.0, LibSink-2.0
 
-TBC\Code\_Sandbox_Save.lua
-TBC\Code\_Sandbox_On.lua
-TBC\embeds.xml
-TBC\Code\PreLocale.lua
+Forever\Code\_Sandbox_Save.lua
+Forever\Code\_Sandbox_On.lua
+Forever\embeds.xml
+Forever\Code\PreLocale.lua
 locales.xml
-TBC\Code\PostLocale.lua
+Forever\Code\PostLocale.lua
 
-TBC\Code\Parrot.lua
-TBC\Code\API.lua
-TBC\Code\Skin.lua
-TBC\Code\AnimationStyles.lua
-TBC\Code\CombatEvents.lua
-TBC\Code\Display.lua
-TBC\Code\ScrollAreas.lua
-TBC\Code\Suppressions.lua
-TBC\Code\TriggerConditions.lua
-TBC\Code\Triggers.lua
-TBC\Code\About.lua
+Forever\Code\Parrot.lua
+Forever\Code\API.lua
+Forever\Code\Skin.lua
+Forever\Code\AnimationStyles.lua
+Forever\Code\CombatEvents.lua
+Forever\Code\Display.lua
+Forever\Code\ScrollAreas.lua
+Forever\Code\Suppressions.lua
+Forever\Code\TriggerConditions.lua
+Forever\Code\Triggers.lua
+Forever\Code\About.lua
 
-TBC\Data\AnimationStyles.lua
-TBC\Data\CombatEvents.lua
-TBC\Data\TriggerConditions.lua
-TBC\Data\Auras.lua
-TBC\Data\Cooldowns.lua
-TBC\Data\Loot.lua
-TBC\Data\PointGains.lua
-TBC\Data\CombatStatus.lua
+Forever\Data\AnimationStyles.lua
+Forever\Data\CombatEvents.lua
+Forever\Data\TriggerConditions.lua
+Forever\Data\Auras.lua
+Forever\Data\Cooldowns.lua
+Forever\Data\Loot.lua
+Forever\Data\PointGains.lua
+Forever\Data\CombatStatus.lua
 
-TBC\Code\_Sandbox_Off.lua
+Forever\Code\_Sandbox_Off.lua

@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	NEW in the Parrot 3 fork on 2026-09-10:
+	NEW in the Parrot 3 fork on 2026-09-14:
 	  Loaded immediately BEFORE locales.xml. If the user picked a fixed
 	  interface language (Settings tab), point GAME_LOCALE at it so AceLocale-3.0
 	  registers that locale's strings instead of the client's. PostLocale.lua

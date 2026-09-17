@@ -3,7 +3,7 @@
 	itself based on the original Parrot by ckknight.
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
-	CHANGED for the Parrot 3 fork on 2026-09-10:
+	CHANGED for the Parrot 3 fork on 2026-09-14:
 	  - added Parrot:MigrateDB(): a versioned top-level database migration scaffold (db.global.dbVersion).
 	  - added a Parrot:Print() helper (AceConsole is not embedded; also fixes latent Parrot:Print calls in Triggers.lua).
 	  - added Parrot:TestMessages() and /parrot test|toggle|config sub-commands.
