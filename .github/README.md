@@ -69,6 +69,7 @@ Without their work, this fork would not exist.
 | Classic Era (`1.15.9`) | `11509` | `Parrot3_Vanilla.toc` |
 | TBC Classic (`2.5.6`) | `20506` | `Parrot3_TBC.toc` |
 | MoP Classic (`5.5.4`) | `50504` | `Parrot3_Mists.toc` |
+| Forever (`1.60.1`) | `16001` | `Parrot3_Forever.toc` |
 
 `Libs/` and `Locales/` are shared by all four TOCs. SavedVariables stay `ParrotDB`, so existing Parrot 2 settings carry over.
 
