@@ -74,6 +74,9 @@ function API.GetItemIcon(item)
 end
 
 function API.GetItemInfo(item)
+	if C_Item and C_Item.GetItemInfo then
+		return C_Item.GetItemInfo(item)
+	end
 	return GetItemInfo(item)
 end
 

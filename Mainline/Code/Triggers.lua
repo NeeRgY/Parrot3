@@ -782,8 +782,15 @@ do
 end
 
 local function getPlayerSpec()
+	-- Parrot 3: GetSpecialization/GetSpecializationInfo can be nil if
+	-- Parrot3 gets force-loaded very early by another addon (e.g. Details
+	-- hooking TalentFrame_LoadUI triggers LoadAddOn cascades before the
+	-- talent/specialization API has finished initializing) or if the client
+	-- flavor simply doesn't expose the specialization API - guard instead
+	-- of erroring, effective registry gets rebuilt again once things settle.
+	if type(GetSpecialization) ~= "function" then return "0" end
 	local spec = GetSpecialization()
-	local specId = spec and GetSpecializationInfo(spec) or 0
+	local specId = spec and GetSpecializationInfo and GetSpecializationInfo(spec) or 0
 	return tostring(specId)
 end
 
@@ -1949,7 +1956,11 @@ function module:OnOptionsCreate()
 			args = {}
 		}
 		for i,v in ipairs(specChoices[class]) do
-			local _, name, desc = GetSpecializationInfoByID(v)
+			local _, name, desc
+			if type(GetSpecializationInfoByID) == "function" then
+				_, name, desc = GetSpecializationInfoByID(v)
+			end
+			name = name or ("Spec " .. v)
 			tsharedopt.classes.args[class .. "-"].args["Spec" .. v] = {
 				type = 'toggle',
 				name = name,

@@ -20,13 +20,17 @@ local C, F = UI.C, UI.F
 -- Content
 ----------------------------------------------------------------------
 local VERSION = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Parrot3", "Version"))
-	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.1"
+	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.2"
 
 local G = "|cff4dc78d"   -- accent green
 local X = "|r"
 local D = "|cff808080"   -- dim
 
 local CHANGELOG = [[
+]] .. G .. [[v3.0.2  (2026-09-22)]] .. X .. [[
+
+Fixed WoW: Forever.
+
 ]] .. G .. [[v3.0.1  (2026-09-17)]] .. X .. [[
 
 Added WoW: Forever support (client version 1.60.1).

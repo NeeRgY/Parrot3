@@ -12,7 +12,7 @@
 ## Notes-zhCN: 绝妙的浮动战斗文本。来人，喂公子吃饼。真香。
 ## Notes-zhTW: 絕妙的戰鬥記錄指示器。
 ## Author: NeRgY
-## Version: v3.0.1
+## Version: v3.0.2
 ## IconTexture: Interface\Icons\Spell_Nature_ForceOfNature
 ## Group: Parrot 3
 ## Category-enUS: Combat

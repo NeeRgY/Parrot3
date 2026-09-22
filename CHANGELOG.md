@@ -218,6 +218,16 @@ Parrot 2 build.
 
 ---
 
+## v3.0.2 (2026-09-22)
+
+- **Fixed WoW: Forever.** The client identifies itself as the `Mainline`
+  addon flavor, so it was always loading the `Mainline/` tree - the separate
+  `Forever/` tree added in v3.0.1 never actually got picked. Patched the
+  APIs that came back missing or renamed on it (item info, specializations,
+  `LibDualSpec`), and rebuilt the fallback damage/heal feed used while
+  Forever's beta blocks combat log access, so outgoing damage, healing and
+  their icons now show correctly.
+
 ## v3.0.1 (2026-09-17)
 
 - Added WoW: Forever support (client version `1.60.1`).

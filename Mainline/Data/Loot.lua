@@ -23,6 +23,9 @@ local LOOT_ITEM_REFUND = _G.LOOT_ITEM_REFUND
 local LOOT_ITEM_REFUND_MULTIPLE = _G.LOOT_ITEM_REFUND_MULTIPLE
 local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
 
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemCount = (C_Item and C_Item.GetItemCount) or _G.GetItemCount
+
 local function parse_CHAT_MSG_LOOT(chatmsg)
 	-- check for multiple
 	local itemLink, amount = Deformat(chatmsg, LOOT_ITEM_SELF_MULTIPLE)

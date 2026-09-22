@@ -18,6 +18,7 @@ local API = Parrot.API
 local GetSpellName = API.GetSpellName
 local GetSpellTexture = API.GetSpellTexture
 local IsSpellUsable = API.IsSpellUsable
+local GetItemInfo = API.GetItemInfo
 
 local db = nil
 local defaults = {
@@ -39,8 +40,6 @@ do
 			local spell = GetSpellName(id)
 			if spell then
 				spellGroups[spell] = name
-			else
-				print("Parrot: Cooldown spell missing:", id)
 			end
 		end
 	end

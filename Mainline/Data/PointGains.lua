@@ -14,6 +14,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 local newDict, newList = Parrot.newDict, Parrot.newList
 local Deformat = Parrot.Deformat
 
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+
 local currentXP = 0
 
 function module:OnEnable()
