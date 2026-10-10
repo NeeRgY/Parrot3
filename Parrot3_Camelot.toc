@@ -1,0 +1,89 @@
+## Interface: 16001
+## Title: Parrot 3
+## Notes: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-esES: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-esMX: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-deDE: Scrollender Kampftext der Ungeheuerlichkeit. Kraaaah!
+## Notes-frFR: Texte de combat flottant. Croac. Coco veut un gâteau.
+## Notes-itIT: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-koKR: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-ptBR: Floating Combat Text of awesomeness. Caw. It'll eat your crackers.
+## Notes-ruRU: Мощный плавающий текст боя.
+## Notes-zhCN: 绝妙的浮动战斗文本。来人，喂公子吃饼。真香。
+## Notes-zhTW: 絕妙的戰鬥記錄指示器。
+## Author: NeRgY
+## Version: v3.0.4
+## IconTexture: Interface\Icons\Spell_Nature_ForceOfNature
+## Group: Parrot 3
+## Category-enUS: Combat
+## Category-deDE: Kampf
+## Category-frFR: Combat
+## Category-esES: Combate
+## Category-esMX: Combate
+## Category-itIT: Combattimento
+## Category-ptBR: Combate
+## Category-ruRU: Бой
+## Category-koKR: 전투
+## Category-zhCN: 战斗
+## Category-zhTW: 戰鬥
+## AddonCompartmentFunc: Parrot3_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: Parrot3_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: Parrot3_OnAddonCompartmentLeave
+
+## X-Credits: ckknight (Parrot), profalbert, nebularg (Parrot 2)
+## X-Fork-Maintainer: NeRgY
+## X-Category: Combat
+## X-License: LGPLv2.1
+## X-Website: (add your Parrot 3 project page here)
+#
+# Parrot 3 fork maintainer: NeRgY.
+# Parrot 3 is a fork of Parrot 2 by Neb (https://github.com/nebularg/Parrot2),
+# itself based on the original Parrot by ckknight. Licensed under GNU LGPL v2.1
+# (see LICENSE.txt). CHANGED for the Parrot 3 fork on 2026-09-17: added this
+# tree for WoW: Forever (client build 1.60.1, Interface 16001) - Forever is
+# built on the Vanilla Classic Era API surface (~1.15.x), so this tree is a
+# straight copy of the Vanilla/ code tree with only the Interface number
+# changed. Not yet confirmed against a live Forever client - Blizzard has
+# published no official addon API notes for Forever as of this tree's
+# creation (the beta only opened on 2026-09-17). Revisit once the beta is
+# actually testable. See CHANGELOG.md for the full list of changes.
+# CHANGED 2026-10-10: Forever runs the modern (Mainline-style) client API - no
+# GetSpellInfo / GetNumSpellTabs, and COMBAT_LOG_EVENT_UNFILTERED registration is
+# blocked - so the Classic-based code errored on load. The Forever/ tree is now a
+# copy of the Mainline/ tree (incl. CompatShims + combat feed fallback), which is
+# what worked on Forever in v3.0.2. Keep it in sync with Mainline/ when fixing.
+#
+
+## SavedVariables: ParrotDB
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDDI-1.0, LibSink-2.0, LibDualSpec-1.0
+
+Forever\Code\_Sandbox_Save.lua
+Forever\Code\_Sandbox_On.lua
+Forever\embeds.xml
+Forever\Code\PreLocale.lua
+locales.xml
+Forever\Code\PostLocale.lua
+
+Forever\Code\Parrot.lua
+Forever\Code\API.lua
+Forever\Code\Skin.lua
+Forever\Code\AnimationStyles.lua
+Forever\Code\CombatEvents.lua
+Forever\Code\Display.lua
+Forever\Code\ScrollAreas.lua
+Forever\Code\Suppressions.lua
+Forever\Code\TriggerConditions.lua
+Forever\Code\Triggers.lua
+Forever\Code\About.lua
+
+Forever\Data\AnimationStyles.lua
+Forever\Data\CombatEvents.lua
+Forever\Code\CombatFeedFallback.lua
+Forever\Data\TriggerConditions.lua
+Forever\Data\Auras.lua
+Forever\Data\Cooldowns.lua
+Forever\Data\Loot.lua
+Forever\Data\PointGains.lua
+Forever\Data\CombatStatus.lua
+
+Forever\Code\_Sandbox_Off.lua

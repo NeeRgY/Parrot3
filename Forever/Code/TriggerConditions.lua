@@ -1,7 +1,5 @@
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local module = Parrot:NewModule("TriggerConditions", "AceEvent-3.0")
 
 local Parrot_Triggers

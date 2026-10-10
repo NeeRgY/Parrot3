@@ -8,8 +8,6 @@
 ----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
 local newDict = Parrot.newDict
@@ -24,6 +22,9 @@ local LOOT_ITEM_CREATED_SELF_MULTIPLE = _G.LOOT_ITEM_CREATED_SELF_MULTIPLE
 local LOOT_ITEM_REFUND = _G.LOOT_ITEM_REFUND
 local LOOT_ITEM_REFUND_MULTIPLE = _G.LOOT_ITEM_REFUND_MULTIPLE
 local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
+
+local GetItemInfo = (C_Item and C_Item.GetItemInfo) or _G.GetItemInfo
+local GetItemCount = (C_Item and C_Item.GetItemCount) or _G.GetItemCount
 
 local function parse_CHAT_MSG_LOOT(chatmsg)
 	-- check for multiple

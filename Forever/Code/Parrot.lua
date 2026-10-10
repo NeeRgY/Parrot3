@@ -25,9 +25,15 @@
 	    would otherwise block CLEU registration and make cooldown / combat
 	    numbers unusable "secret" values. Every embedded lib, including
 	    LibSharedMedia-3.0, is now private to Parrot.
+	  - UpdateFCT()/ResetFCT() also set the "_v2" generation of the floating
+	    combat text CVars (floatingCombatTextCombatDamage_v2 and friends) that
+	    drives the newer, nameplate-anchored damage/heal numbers; Parrot 2 only
+	    ever set the originals, so Blizzard's own numbers over enemies kept
+	    showing regardless of Parrot's settings.
 ----------------------------------------------------------------------------]]
 local _, ns = ...
 ns.addon = {}
+
 -- Parrot 3: use the private LibStub from _Sandbox_On.lua for every lookup,
 -- load-time and runtime, so nothing here ever reads the session-wide (and
 -- often taint-poisoned) global. See Code/_Sandbox_On.lua.
@@ -40,8 +46,16 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- AceConfigDialog and AceGUI each keep a single tooltip frame for every
 -- widget to share, created via CreateFrame("GameTooltip", "<fixed name>",
--- ...). Same global-name-collision problem as LibDBIcon's tooltip below -
--- see that comment for the full explanation.
+-- ...). CreateFrame with a name that already exists in _G returns the
+-- EXISTING frame instead of making a new one, so even though Parrot loads
+-- its own private copies of these libraries (see Code/_Sandbox_On.lua),
+-- that privacy doesn't extend to frames registered under a global name -
+-- whichever addon's copy created "AceConfigDialogTooltip"/"AceGUITooltip"
+-- first "wins" the name, and every other addon's private copy ends up
+-- sharing that one physical frame. GameTooltipTemplate also needs a real
+-- frame name to lay out its own text regions correctly - an unnamed
+-- replacement frame renders but shows no text at all - so the fix needs a
+-- name that is both present and unique to Parrot.
 do
 	local function ownTooltip(name)
 		return CreateFrame("GameTooltip", name, UIParent, "GameTooltipTemplate")
@@ -53,7 +67,7 @@ end
 
 -- Parrot 3: private event dispatcher.
 -- Parrot 2 used AceEvent-3.0, whose single frame and callback registry are
--- shared by every Ace-embedding addon loaded in the session. On modern clients,
+-- shared by every Ace-embedding addon loaded in the session. On modern retail,
 -- once another addon's handler taints that shared dispatch, Parrot's handlers
 -- run in the same tainted call and values Parrot then reads from protected APIs
 -- (spell cooldowns, unit power, combat-log args) come back as "secret" numbers
@@ -130,9 +144,6 @@ do
 		return Events.Embed(_NewModule(self, name, ...))
 	end
 end
-
-Parrot.wow_classic_era = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-Parrot.wow_classic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 -- Debug
 local debug = function() end
@@ -338,14 +349,12 @@ do
 end
 
 -- Init
+local db = nil
 local defaults = {
 	global = {
 		locale = "auto",
 	},
 	profile = {
-		-- Parrot 3: lets players turn off Blizzard's own floating combat
-		-- text CVars from Parrot's options, so damage/healing numbers only
-		-- come from Parrot instead of showing twice.
 		gameText = true,
 		gameSelf = false,
 		gameDamage = false,
@@ -417,12 +426,14 @@ function Parrot:MigrateDB()
 end
 
 function Parrot:OnProfileChanged(event, database)
+	db = self.db.profile
 	for _, mod in self:IterateModules() do
 		if type(mod.OnProfileChanged) == "function" then
 			self:SafeCall("module '" .. (mod.moduleName or "?") .. "':OnProfileChanged",
 				mod.OnProfileChanged, mod, event, database)
 		end
 	end
+	self:UpdateFCT()
 
 	local LDBIcon = LibStub("LibDBIcon-1.0", true)
 	if LDBIcon and LDBIcon:IsRegistered("Parrot") then
@@ -486,6 +497,8 @@ end
 
 function Parrot:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("ParrotDB", defaults, true)
+	LibStub("LibDualSpec-1.0"):EnhanceDatabase(self.db, "Parrot")
+	db = self.db.profile
 
 	self:MigrateDB()
 	self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
@@ -567,21 +580,20 @@ function Parrot:OnInitialize()
 			end
 		end,
 		OnTooltipShow = function(tt)
-			tt:AddLine("Parrot 3")
-			tt:AddLine("|cffffffffLeft-click|r  open configuration", 1, 1, 1)
-			tt:AddLine("|cffffffffRight-click|r  enable / disable", 1, 1, 1)
+			tt:AddLine("Parrot 3", 1, 1, 1)
+			tt:AddLine("Left-click  open configuration", 1, 1, 1)
+			tt:AddLine("Right-click  enable / disable", 1, 1, 1)
 		end,
 		label = L["Parrot"],
 	})
 
 	local LDBIcon = LibStub("LibDBIcon-1.0", true)
 	if LDBIcon then
-		-- LibDBIcon-1.0 keeps one shared tooltip frame for every registered
-		-- icon, created via CreateFrame("GameTooltip", "LibDBIconTooltip",
-		-- ...). Same global-name-collision problem as above - a name that
-		-- already exists in _G returns the existing frame instead of a new
-		-- one, so the fix needs a name that is both present and unique to
-		-- Parrot.
+		-- Same global-tooltip-frame-name collision as AceConfigDialog/AceGUI
+		-- above - LibDBIcon-1.0 creates its shared tooltip as
+		-- CreateFrame("GameTooltip", "LibDBIconTooltip", ...), so Parrot's
+		-- private copy can end up sharing a physical frame with whichever
+		-- addon's copy of the library created that name first.
 		if not LDBIcon.__parrotOwnTooltip then
 			LDBIcon.tooltip = CreateFrame("GameTooltip", "Parrot3LibDBIconTooltip", UIParent, "GameTooltipTemplate")
 			LDBIcon.__parrotOwnTooltip = true
@@ -592,37 +604,48 @@ function Parrot:OnInitialize()
 
 end
 
-
-
--- Lets players turn off Blizzard's own floating combat text so
--- damage/healing numbers only come from Parrot instead of showing twice.
 do
 	local fct = {
-		"floatingCombatTextCombatDamage",
-		"floatingCombatTextCombatDamageAllAutos",
-		"floatingCombatTextCombatLogPeriodicSpells",
-		"floatingCombatTextPetMeleeDamage",
-		"floatingCombatTextPetSpellDamage",
-		"floatingCombatTextCombatHealing",
-		"floatingCombatTextCombatHealingAbsorbTarget",
-		"floatingCombatTextCombatHealingAbsorbSelf",
-		"floatingCombatTextReactives",
-		"floatingCombatTextLowManaHealth",
-		"floatingCombatTextDodgeParryMiss",
-		"floatingCombatTextCombatState",
-		"floatingCombatTextDamageReduction",
-		"enableFloatingCombatText",
+	  "enableFloatingCombatText",
+	  "floatingCombatTextCombatDamage",
+	  "floatingCombatTextCombatDamageAllAutos",
+	  "floatingCombatTextCombatLogPeriodicSpells",
+	  "floatingCombatTextPetMeleeDamage",
+	  "floatingCombatTextPetSpellDamage",
+	  "floatingCombatTextCombatHealing",
+	  "floatingCombatTextCombatHealingAbsorbTarget",
+	  "floatingCombatTextCombatHealingAbsorbSelf",
+	  "floatingCombatTextReactives",
+	  "floatingCombatTextLowManaHealth",
+	  "floatingCombatTextDodgeParryMiss",
+	  "floatingCombatTextCombatState",
+	  "floatingCombatTextDamageReduction",
+		-- The newer "_v2" generation of these CVars drives the
+		-- nameplate-anchored damage/heal numbers. Not every CVar has a
+		-- "_v2" variant, so which one applies is auto-detected per CVar
+		-- (see cvarExists()/realCVarName() below) rather than listed here.
 	}
+
+	-- SetCVar alone doesn't make Blizzard's already-running CombatText
+	-- frame re-read these settings - the default UI's own options panel
+	-- explicitly pokes it via CombatText_UpdateDisplayedMessages() after
+	-- changing the CVars. Without this, a live toggle only took effect
+	-- after the next /reload even though the CVar itself was already set
+	-- correctly.
+	local function refreshBlizzardCombatText()
+		if CombatText_UpdateDisplayedMessages then
+			CombatText_UpdateDisplayedMessages()
+		end
+	end
 
 	-- Several floatingCombatTextXXX CVars have a matching GLOBAL VARIABLE
 	-- that the "on me" (self) combat-text engine actually reads - e.g.
 	-- Miss/Dodge/Parry's real switch is the global
 	-- COMBAT_TEXT_SHOW_DODGE_PARRY_MISS, not just SHOW_COMBAT_TEXT (which
-	-- is only the master "on me" toggle, covering the plain incoming-damage
-	-- number but not Miss/Dodge/Parry specifically). SetCVar-ing
+	-- is only the master "on me" toggle). SetCVar-ing
 	-- enableFloatingCombatText alone also doesn't reliably get picked up
 	-- live - flipping it through "1" and back to the desired value forces
-	-- the engine to actually re-read it.
+	-- the engine to re-read it.
 	local GLOBAL_FOR_CVAR = {
 		enableFloatingCombatText = "SHOW_COMBAT_TEXT",
 		floatingCombatTextLowManaHealth = "COMBAT_TEXT_SHOW_LOW_HEALTH_MANA",
@@ -632,15 +655,6 @@ do
 		floatingCombatTextReactives = "COMBAT_TEXT_SHOW_REACTIVES",
 	}
 
-	local function refreshBlizzardCombatText()
-		if CombatText_UpdateDisplayedMessages then
-			CombatText_UpdateDisplayedMessages()
-		end
-	end
-
-	-- Sets both the CVar and (if one exists) its real backing global. Not
-	-- every CVar has a "_v2" (Dragonflight+) variant, so which one applies
-	-- is auto-detected per CVar instead of hardcoded.
 	local function cvarExists(name)
 		return GetCVarDefault(name) ~= nil
 	end
@@ -661,7 +675,7 @@ do
 	end
 
 	-- The master "on me" toggle needs the flip-through-1 trick to actually
-	-- apply regardless of which value it's heading to.
+	-- apply (see point 2 above) regardless of which value it's heading to.
 	local function forceApplyEnableFCT(on)
 		setFCT("enableFloatingCombatText", true)
 		setFCT("enableFloatingCombatText", on)
@@ -683,10 +697,9 @@ do
 		refreshBlizzardCombatText()
 	end
 
-	-- Current Retail-family clients silently refuse SetCVar for these
-	-- particular CVars while the player is in combat (no error, the write
-	-- just doesn't take). Deferred writes retry once combat ends via
-	-- PLAYER_REGEN_ENABLED below.
+	-- Current Retail silently refuses SetCVar for these particular CVars
+	-- while the player is in combat (no error, the write just doesn't take).
+	-- Deferred writes retry once combat ends via PLAYER_REGEN_ENABLED below.
 	local pendingFCTUpdate = false
 
 	function Parrot:UpdateFCT()
@@ -695,7 +708,6 @@ do
 			return
 		end
 		pendingFCTUpdate = false
-		local db = self.db.profile
 		if db.gameText then
 			forceApplyEnableFCT(db.gameSelf)
 			setFCT("floatingCombatTextDodgeParryMiss", db.gameSelf)
@@ -747,7 +759,7 @@ do
 	local combatLogHandlers = {}
 
 	-- Parrot 3: combat-log events are delivered on a private frame.
-	-- On modern clients, Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") is
+	-- On modern retail, Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") is
 	-- refused from any *tainted* execution path. During the loading screen every
 	-- addon that loads after a taint-spreading one (common with error-grabber
 	-- and data-broker addons) inherits that taint in its own main chunk *and*
@@ -766,12 +778,24 @@ do
 				cleuRegistered = true
 				cleuFrame:UnregisterEvent("PLAYER_LOGIN")
 				cleuFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-				-- Parrot 3: unlike Retail (11.0.7+), this client has never
-				-- restricted COMBAT_LOG_EVENT_UNFILTERED registration to a
-				-- secure/untainted execution path, so no issecure() guard is
-				-- needed here (Mainline/Code/Parrot.lua has the Retail-only
-				-- version of this, plus a fallback feed for when it triggers).
-				cleuFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				-- Parrot 3: RegisterEvent for a restricted event is silently
+				-- refused (no catchable Lua error) when the execution is
+				-- tainted, but it still logs an ADDON_ACTION_FORBIDDEN entry
+				-- via BugGrabber/the default error handler - issecure() lets
+				-- us predict the refusal and skip the call outright instead
+				-- of triggering that log entry for nothing. IsEventRegistered
+				-- stays as a fallback check in case issecure() and the actual
+				-- RegisterEvent policy ever disagree. Either way, if we don't
+				-- get COMBAT_LOG_EVENT_UNFILTERED, Code/CombatFeedFallback.lua
+				-- takes over with a best-effort, non-combat-log damage/heal
+				-- feed.
+				if issecure() then
+					cleuFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				end
+				if not cleuFrame:IsEventRegistered("COMBAT_LOG_EVENT_UNFILTERED") then
+					Parrot.combatLogBlocked = true
+					Parrot:Print(L["Combat log access is blocked this session (likely an addon conflict) - switching to a simplified, approximate damage/heal feed. /parrot errors has no details for this since it isn't a Lua error."])
+				end
 			end
 			return
 		end
@@ -934,36 +958,17 @@ function Parrot:AddOption(name, args)
 end
 
 function Parrot:OnOptionsCreate()
-	self:AddOption("profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db))
-	self.options.args.profiles.order = -1
-
 	local function setCVarOption(info, value)
-		self.db.profile[info[#info]] = value
+		db[info[#info]] = value
 		self:UpdateFCT()
 	end
 	local function disabled()
-		return not self.db.profile.gameText
+		return not db.gameText
 	end
 
-	-- Parrot 3: these Blizzard globals are what the Retail options panel
-	-- uses for its own Floating Combat Text section, but not all of them
-	-- exist on every Classic client (e.g. Vanilla never shipped a
-	-- SHOW_PET_MELEE_DAMAGE string) - AceConfigRegistry hard-errors if a
-	-- widget's name/desc resolves to nil, so every one needs a plain-text
-	-- fallback instead of relying on the Blizzard global being there.
-	local combatTextLabel = _G.COMBAT_TEXT_LABEL or "Floating Combat Text"
-	local combatSelfName = _G.COMBAT_SELF or "Combat Self"
-	local combatSelfDesc = _G.OPTION_TOOLTIP_SHOW_COMBAT_TEXT or ""
-	local damageName = _G.SHOW_DAMAGE_TEXT or "Damage"
-	local damageDesc = _G.OPTION_TOOLTIP_SHOW_DAMAGE or ""
-	local petDamageName = _G.SHOW_PET_MELEE_DAMAGE or "Pet Damage"
-	local petDamageDesc = _G.OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE or ""
-	local healingName = _G.SHOW_COMBAT_HEALING or "Healing"
-	local healingDesc = _G.OPTION_TOOLTIP_SHOW_COMBAT_HEALING or ""
-	local lowHealthName = _G.COMBAT_TEXT_SHOW_LOW_HEALTH_MANA_TEXT or "Low Mana & Health"
-	local lowHealthDesc = _G.OPTION_TOOLTIP_COMBAT_TEXT_SHOW_LOW_HEALTH_MANA or ""
-	local reactivesName = _G.COMBAT_TEXT_SHOW_REACTIVES_TEXT or "Spell Alerts"
-	local reactivesDesc = _G.OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES or ""
+	self:AddOption("profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db))
+	self.options.args.profiles.order = -1
+	LibStub("LibDualSpec-1.0"):EnhanceOptions(self.options.args.profiles, self.db)
 
 	self:AddOption("general", {
 		type = "group",
@@ -975,8 +980,8 @@ function Parrot:OnOptionsCreate()
 			gameText = {
 				type = "group",
 				inline = true,
-				name = combatTextLabel,
-				get = function(info) return self.db.profile[info[#info]] end,
+				name = _G.COMBAT_TEXT_LABEL, -- Floating Combat Text
+				get = function(info) return db[info[#info]] end,
 				set = setCVarOption,
 				args = {
 					gameText = {
@@ -985,7 +990,7 @@ function Parrot:OnOptionsCreate()
 						desc = L["Whether Parrot should control the default interface's options below.\nThese settings always override manual changes to the default interface options."],
 						descStyle = "inline",
 						set = function(info, value)
-							self.db.profile[info[#info]] = value
+							db[info[#info]] = value
 							if value then
 								self:UpdateFCT()
 							else
@@ -997,43 +1002,43 @@ function Parrot:OnOptionsCreate()
 					},
 					gameSelf = {
 						type = "toggle",
-						name = combatSelfName,
-						desc = combatSelfDesc,
+						name = _G.COMBAT_SELF, -- Combat Self
+						desc = _G.OPTION_TOOLTIP_SHOW_COMBAT_TEXT, -- Checking this will enable additional combat messages to appear in the playfield.
 						disabled = disabled,
 						order = 1,
 					},
 					gameDamage = {
 						type = "toggle",
-						name = damageName,
-						desc = damageDesc,
+						name = _G.SHOW_DAMAGE_TEXT, -- Damage
+						desc = _G.OPTION_TOOLTIP_SHOW_DAMAGE, -- Display damage numbers over hostile creatures when damaged.
 						disabled = disabled,
 						order = 2,
 					},
 					gamePetDamage = {
 						type = "toggle",
-						name = petDamageName,
-						desc = petDamageDesc,
+						name = _G.SHOW_PET_MELEE_DAMAGE, -- Pet Damage
+						desc = _G.OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE, -- Show damage caused by your pet.
 						disabled = disabled,
 						order = 3,
 					},
 					gameHealing = {
 						type = "toggle",
-						name = healingName,
-						desc = healingDesc,
+						name = _G.SHOW_COMBAT_HEALING, -- Healing
+						desc = _G.OPTION_TOOLTIP_SHOW_COMBAT_HEALING, -- Display amount of healing you did to the target.
 						disabled = disabled,
 						order = 4,
 					},
 					gameLowHealth = {
 						type = "toggle",
-						name = lowHealthName,
-						desc = lowHealthDesc,
+						name = _G.COMBAT_TEXT_SHOW_LOW_HEALTH_MANA_TEXT, -- Low Mana & Health
+						desc = _G.OPTION_TOOLTIP_COMBAT_TEXT_SHOW_LOW_HEALTH_MANA, -- Shows a message when you fall below 20% mana or health.
 						disabled = disabled,
 						order = 5,
 					},
 					gameReactives = {
 						type = "toggle",
-						name = reactivesName,
-						desc = reactivesDesc,
+						name = _G.COMBAT_TEXT_SHOW_REACTIVES_TEXT, -- Spell Alerts
+						desc = _G.OPTION_TOOLTIP_COMBAT_TEXT_SHOW_REACTIVES, -- Show alerts when certain important events occur.
 						disabled = disabled,
 						order = 6,
 					},

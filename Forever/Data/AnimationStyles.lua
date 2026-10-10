@@ -1,7 +1,5 @@
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
 local math_max, math_min = math.max, math.min
@@ -567,7 +565,7 @@ Parrot:RegisterAnimationStyle {
 
 		local y = yOffset + yDiff
 		local x = xOffset + xDiff
-		local dir, clock = (";"):split(direction) -- luacheck: ignore
+		local dir = (";"):split(direction)
 		local point = "CENTER"
 		if dir == "LEFT" then
 			point = "RIGHT"
@@ -635,7 +633,7 @@ Parrot:RegisterAnimationStyle {
 
 		local y = yOffset + yDiff
 		local x = xOffset + xDiff
-		local dir, clock = (";"):split(direction) -- luacheck: ignore
+		local dir = (";"):split(direction)
 		local point = "CENTER"
 		if dir == "LEFT" then
 			point = "RIGHT"

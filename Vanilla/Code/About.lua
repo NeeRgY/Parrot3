@@ -20,13 +20,26 @@ local C, F = UI.C, UI.F
 -- Content
 ----------------------------------------------------------------------
 local VERSION = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Parrot3", "Version"))
-	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.2"
+	or (GetAddOnMetadata and GetAddOnMetadata("Parrot3", "Version")) or "v3.0.4"
 
 local G = "|cff4dc78d"   -- accent green
 local X = "|r"
 local D = "|cff808080"   -- dim
 
 local CHANGELOG = [[
+]] .. G .. [[v3.0.4  (2026-10-10)]] .. X .. [[
+
+WoW: Forever: the TOC is now named Parrot3_Camelot.toc, like the other
+Forever addons. The Forever code tree is now a copy of the Mainline tree
+(spell API compatibility shims, combat feed fallback), because Forever uses
+the modern client API. This fixes the Lua errors in Triggers, Trigger
+Conditions and Cooldowns and the blocked combat log registration.
+
+]] .. G .. [[v3.0.3  (2026-10-03)]] .. X .. [[
+
+WoW: Forever: changed the project ID handling so the addon works again
+on Forever (fixes the LibDualSpec error on login).
+
 ]] .. G .. [[v3.0.2  (2026-09-22)]] .. X .. [[
 
 Fixed WoW: Forever.

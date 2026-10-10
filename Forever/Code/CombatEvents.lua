@@ -8,8 +8,6 @@
 ----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local module = Parrot:NewModule("CombatEvents", "AceEvent-3.0", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
@@ -23,20 +21,6 @@ local debug = Parrot.debug
 local combatEvents = {}
 local sthrottles
 local playerGUID = UnitGUID("player")
-
--- lookup-table for damage-types
-local LS = {
-	["Physical"] = _G.STRING_SCHOOL_PHYSICAL,
-	["Holy"] = _G.STRING_SCHOOL_HOLY,
-	["Fire"] = _G.STRING_SCHOOL_FIRE,
-	["Nature"] = _G.STRING_SCHOOL_NATURE,
-	["Frost"] = _G.STRING_SCHOOL_FROST,
-	["Frostfire"] = _G.STRING_SCHOOL_FROSTFIRE,
-	["Froststorm"] = _G.STRING_SCHOOL_FROSTSTORM,
-	["Shadow"] = _G.STRING_SCHOOL_SHADOW,
-	["Shadowstorm"] = _G.STRING_SCHOOL_SHADOWSTORM,
-	["Arcane"] = _G.STRING_SCHOOL_ARCANE,
-}
 
 local UNKNOWN = _G.UNKNOWN
 
@@ -70,20 +54,33 @@ local defaults = {
 		damageTypes = {
 			color = true,
 			["Physical"] = "ffffff",
-			["Holy"] = "ffff7f",
-			["Fire"] = "ff7f7f",
-			["Nature"] = "7fff7f",
-			["Frost"] = "7f7fff",
-			["Shadow"] = "7f007f",
+			["Holy"] = "ffe67f",
+			["Fire"] = "ff7f00",
+			["Nature"] = "4dff4d",
+			["Stormstrike"] = "a6ffa6",
+			["Frost"] = "7fffff",
+			["Frostfire"] = "cc4d7f",
+			["Froststorm"] = "66ffa6",
+			["Shadow"] = "7f7fff",
+			["Shadowstrike"] = "bfbfff",
+			["Twilight"] = "bfb3bf", -- Shadowholy
+			["Shadowflame"] = "cc7f99",
+			["Plague"] = "bf7fff", -- Shadowstorm
+			["Shadowfrost"] = "7fbfff",
 			["Arcane"] = "ff7fff",
-			["Frostfire"] = "ff0088",
-			["Froststorm"] = "7f7f7f",
-			["Shadowstorm"] = "1f1f1f",
+			["Spellstrike"] = "ffbfbb",
+			["Spellfire"] = "ff7f7f",
+			["Astral"] = "99cc99", -- Spellstorm
+			["Spellfrost"] = "ccccff",
+			["Spellshadow"] = "cc66ff",
+			["Elemental"] = "ffff00",
+			["Magic"] = "ff00ff",
+			["Chaos"] = "008800",
 		},
 		modifier = {
 			color = true,
 			crit = {
-				enabled = false,
+				enabled = true, -- Parrot 3 default (was false)
 				color = "ffffff",
 				tag = L["[Text] (crit)"],
 			},
@@ -325,10 +322,6 @@ function module:GetAbbreviatedSpell(name)
 		t = del(t)
 		return s
 	elseif style == "truncate" then
-		local num = neededLen-3
-		if num < 3 then
-			num = 3
-		end
 		return utf8trunc(name, neededLen) .. "..."
 	end
 	return name
@@ -735,17 +728,36 @@ function module:OnOptionsCreate()
 
 	do
 		-- Damage types
-		local tmp = newDict(
-			"Physical", LS["Physical"],
-			"Holy", LS["Holy"],
-			"Fire", LS["Fire"],
-			"Nature", LS["Nature"],
-			"Frost", LS["Frost"],
-			"Shadow", LS["Shadow"],
-			"Arcane", LS["Arcane"],
-			"Frostfire", LS["Frostfire"],
-			"Froststorm", LS["Froststorm"],
-			"Shadowstorm", LS["Shadowstorm"]
+		local tmp = newList(
+			newDict(
+				"Physical", GetSchoolString(1),
+				"Holy", GetSchoolString(2),
+				"Fire", GetSchoolString(4),
+				"Nature", GetSchoolString(8),
+				"Frost", GetSchoolString(16),
+				"Shadow", GetSchoolString(32),
+				"Arcane", GetSchoolString(64)
+			),
+			newDict(
+				"Stormstrike", GetSchoolString(9),
+				"Frostfire", GetSchoolString(20),
+				"Froststorm", GetSchoolString(24),
+				"Shadowstrike", GetSchoolString(33),
+				"Twilight", GetSchoolString(34),
+				"Shadowflame", GetSchoolString(36),
+				"Plague", GetSchoolString(40),
+				"Shadowfrost", GetSchoolString(48),
+				"Spellstrike", GetSchoolString(65),
+				"Spellfire", GetSchoolString(68),
+				"Astral", GetSchoolString(72),
+				"Spellfrost", GetSchoolString(80),
+				"Spellshadow", GetSchoolString(96)
+			),
+			newDict(
+				"Elemental", GetSchoolString(28),
+				"Magic", GetSchoolString(126),
+				"Chaos", GetSchoolString(127)
+			)
 		)
 		local function getColor(info)
 			return hexColorToTuple(db.damageTypes[info.arg])
@@ -753,15 +765,25 @@ function module:OnOptionsCreate()
 		local function setColor(info, r, g, b)
 			db.damageTypes[info.arg] = tupleToHexColor(r, g, b)
 		end
-		for k,v in pairs(tmp) do
-			events_opt.args.damageTypes.args[k] = {
-				type = 'color',
-				name = v,
-				desc = L["What color this damage type takes on."],
-				get = getColor,
-				set = setColor,
-				arg = k,
+		for i, schools in ipairs(tmp) do
+			events_opt.args.damageTypes.args["spacer"..i] = {
+				type = "header",
+				name = "",
+				width = "full",
+				order = i + 0.5,
 			}
+			for k,v in pairs(schools) do
+				events_opt.args.damageTypes.args[k] = {
+					type = 'color',
+					name = v,
+					desc = L["What color this damage type takes on."],
+					get = getColor,
+					set = setColor,
+					arg = k,
+					order = i + 1,
+				}
+			end
+			tmp[i] = del(schools)
 		end
 		tmp = del(tmp)
 	end
@@ -2277,7 +2299,7 @@ local legacyNames = {
 	spellName = "abilityName",
 	extraSpellName = "extraAbilityName",
 	overhealing = "overhealAmount",
-	spellSchool = "damageType",
+	school = "damageType",
 }
 
 local function makeParseFunction(event)

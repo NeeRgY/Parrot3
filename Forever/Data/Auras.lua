@@ -4,17 +4,17 @@
 	Licensed under the GNU Lesser General Public License v2.1 - see LICENSE.txt.
 
 	CHANGED for the Parrot 3 fork on 2026-09-14:
-	  spell / item lookups go through Parrot.API (see Code/API.lua).
+	  get spell/item textures through Parrot.API.
 ----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
 local newDict = Parrot.newDict
+
 local GetSpellTexture = Parrot.API.GetSpellTexture
 local GetItemIcon = Parrot.API.GetItemIcon
+
 
 local playerGUID = UnitGUID("player")
 
@@ -34,7 +34,7 @@ local PET_FLAGS = bit.bor(
 )
 
 local function getIcon(info)
-	return GetSpellTexture(info.spellID or info.abilityName)
+	return GetSpellTexture(info.spellID)
 end
 
 local function retrieveDestName(info)
@@ -55,7 +55,6 @@ local FindAura do
 		return auraToFind == name
 	end
 	function FindAura(unit, aura, filter)
-		if not unit then return end
 		if type(aura) == "number" then
 			return _G.AuraUtil.FindAura(checkID, unit, filter, aura)
 		else
@@ -220,7 +219,6 @@ Parrot:RegisterCombatEvent{
 --[[============================================================================
 -- Target's Auras
 --============================================================================]]
-
 Parrot:RegisterCombatEvent{
 	category = "Notification",
 	subCategory = L["Auras"],
@@ -571,6 +569,7 @@ end
 
 local unitChoices = {
 	["player"] = _G.PLAYER,
+	["focus"] = _G.FOCUS,
 	["target"] = _G.TARGET,
 	["pet"] = _G.PET,
 }

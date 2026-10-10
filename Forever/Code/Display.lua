@@ -8,8 +8,6 @@
 ----------------------------------------------------------------------------]]
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local module = Parrot:NewModule("Display")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
@@ -108,7 +106,6 @@ function module:OnOptionsCreate()
 		isPercent = true,
 		get = getOption,
 		set = setOption,
-		order = 1,
 	}
 	Parrot.options.args.general.args.iconAlpha = {
 		type = "range",
@@ -121,7 +118,6 @@ function module:OnOptionsCreate()
 		isPercent = true,
 		get = getOption,
 		set = setOption,
-		order = 2,
 	}
 	Parrot.options.args.general.args.iconsEnabled = {
 		type = "toggle",
@@ -129,15 +125,12 @@ function module:OnOptionsCreate()
 		desc = L["Set whether icons should be enabled or disabled altogether."],
 		get = getOption,
 		set = setOption,
-		order = 3,
 	}
 	Parrot.options.args.general.args.font = {
 		type = "group",
-		inline = true,
-		name = "", -- L["Master font settings"],
+		name = L["Master font settings"],
 		get = getOption,
 		set = setOption,
-		order = 4,
 		args = {
 			font = {
 				type = "select",

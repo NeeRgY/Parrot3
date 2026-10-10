@@ -1,10 +1,7 @@
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local module = Parrot:NewModule("ScrollAreas", "AceTimer-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
-
 
 local Parrot_AnimationStyles = Parrot:GetModule("AnimationStyles")
 
@@ -142,7 +139,6 @@ function module:OnDisable()
 end
 
 -- Register ConfigMode callback (http://wowpedia.org/ConfigMode)
--- luacheck: globals CONFIGMODE_CALLBACKS
 CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
 CONFIGMODE_CALLBACKS["Parrot"] = function(state)
 	setConfigMode(state == "ON")

@@ -188,6 +188,26 @@ S.Frame = function(w)
 	end
 	if w.statustext then w.statustext:SetText(""); w.statustext:Hide() end
 
+	-- Parrot 3: AceGUIContainer-Frame's actual drag handle ("title", a plain
+	-- Frame with OnMouseDown -> StartMoving) is anchored to titlebg - the
+	-- Blizzard dialog header art, top-center - and isn't exposed on the
+	-- widget table at all, so it couldn't be moved when titletext above was
+	-- relocated to top-left. The result: the visible title text sat at
+	-- top-left while the only place that actually dragged the window was an
+	-- invisible box at top-center, where nothing is drawn anymore. Add our
+	-- own drag strip spanning the whole top edge instead of hunting down and
+	-- repositioning AceGUI's anonymous internal frame.
+	if not f.__parrotDragBar then
+		local dragBar = CreateFrame("Frame", nil, f)
+		dragBar:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+		dragBar:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
+		dragBar:SetHeight(26)
+		dragBar:EnableMouse(true)
+		dragBar:SetScript("OnMouseDown", function() f:StartMoving() end)
+		dragBar:SetScript("OnMouseUp", function() f:StopMovingOrSizing() end)
+		f.__parrotDragBar = dragBar
+	end
+
 	-- close button (skin) + status strip (remove it entirely)
 	for _, kid in next, { f:GetChildren() } do
 		if kid ~= w.content then

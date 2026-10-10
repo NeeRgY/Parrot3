@@ -24,5 +24,7 @@
 	<Include file="..\Libs\LibDDI-1.0\lib.xml"/>
 
 	<Include file="..\Libs\LibSink-2.0\lib.xml"/>
+	<Script file="Code\CompatShims.lua"/>
+	<Include file="..\Libs\LibDualSpec-1.0\LibDualSpec-1.0.lua"/>
 	<!--@end-no-lib-strip@-->
 </Ui>

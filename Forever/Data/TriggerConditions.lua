@@ -1,21 +1,23 @@
 local _, ns = ...
 local Parrot = ns.addon
-if not Parrot then return end
-
 local module = Parrot:NewModule("TriggerConditionsData", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("Parrot")
 
 local newList = Parrot.newList
 
+local GetSpellName = Parrot.API.GetSpellName
+
 local playerGUID = UnitGUID("player")
 
 function module:OnEnable()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	self:RegisterEvent("UNIT_PET")
 end
 
 local unitChoices = {
 	["player"] = _G.PLAYER,
+	["focus"] = _G.FOCUS,
 	["target"] = _G.TARGET,
 	["pet"] = _G.PET,
 }
@@ -74,6 +76,7 @@ local unitHealthStates = {
 	player = {},
 	target = {},
 	pet = {},
+	focus = {},
 }
 
 
@@ -175,16 +178,25 @@ local powerTypeChoices = {
 	[1] = _G.RAGE,
 	[2] = _G.FOCUS,
 	[3] = _G.ENERGY,
-	[4] = _G.HAPPINESS,
+	[4] = _G.COMBO_POINTS,
 	[5] = _G.RUNES,
 	[6] = _G.RUNIC_POWER,
-	[14] = _G.COMBO_POINTS,
+	[7] = _G.SOUL_SHARDS,
+	[8] = _G.LUNAR_POWER,
+	[9] = _G.HOLY_POWER,
+	[11] = _G.MAELSTROM,
+	[12] = _G.CHI,
+	[13] = _G.INSANITY,
+	[16] = _G.ARCANE_CHARGES,
+	[17] = _G.FURY,
+	[18] = _G.PAIN,
 }
 
 local unitPowerStates = {
 	player = {},
 	target = {},
 	pet = {},
+	focus = {},
 }
 
 --[[
@@ -194,6 +206,11 @@ local unitPowerStates = {
 function module:PLAYER_TARGET_CHANGED()
 	wipe(unitHealthStates.target)
 	wipe(unitPowerStates.target)
+end
+
+function module:PLAYER_FOCUS_CHANGED()
+	wipe(unitHealthStates.focus)
+	wipe(unitPowerStates.focus)
 end
 
 function module:UNIT_PET(_, unit)
@@ -840,10 +857,11 @@ Parrot:RegisterSecondaryTriggerCondition {
 	param = {
 		type = 'select',
 		values = {
-			["Bear Form"] = GetSpellInfo(5487),
-			["Cat Form"] = GetSpellInfo(768),
-			["Travel Form"] = GetSpellInfo(783),
-			["Moonkin Form"] = GetSpellInfo(24858),
+			["Bear Form"] = GetSpellName(5487),
+			["Cat Form"] = GetSpellName(768),
+			["Travel Form"] = GetSpellName(783),
+			["Moonkin Form"] = GetSpellName(24858),
+			--["Tree of Life"] = GetSpellName(48371),
 		}
 	},
 	check = function(param)
@@ -860,6 +878,8 @@ Parrot:RegisterSecondaryTriggerCondition {
 			return param == "Travel Form"
 		elseif form == 4 then
 			return param == "Moonkin Form"
+		--elseif form == 5 then
+		--	return param == "Tree of Life"
 		end
 		return false
 	end,
@@ -994,5 +1014,21 @@ Parrot:RegisterSecondaryTriggerCondition {
 			end
 		end
 		return func()
+	end,
+}
+
+Parrot:RegisterPrimaryTriggerCondition {
+	name = "Spell overlay",
+	localName = L["Spell overlay"],
+	param = {
+		type = "input",
+		usage = L["<SpellId>"],
+	},
+	events = {
+		SPELL_ACTIVATION_OVERLAY_SHOW = ret, -- hidden aura spell id
+		SPELL_ACTIVATION_OVERLAY_GLOW_SHOW = ret, -- button spell id
+	},
+	check = function(ref, info)
+		return tonumber(ref) == info
 	end,
 }

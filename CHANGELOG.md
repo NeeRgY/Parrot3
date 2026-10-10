@@ -218,6 +218,26 @@ Parrot 2 build.
 
 ---
 
+## v3.0.4 (2026-10-10)
+
+- **WoW: Forever:** the TOC is now `Parrot3_Camelot.toc` (was
+  `Parrot3_Forever.toc`), matching the other Forever addons.
+- **WoW: Forever:** the `Forever/` code tree is now a copy of the `Mainline/`
+  tree (including `CompatShims.lua` and `CombatFeedFallback.lua`). Forever
+  uses the modern client API, so the Classic-based tree failed on load:
+  `GetSpellInfo` / `GetNumSpellTabs` were missing (errors in `Triggers.lua`,
+  `Data/TriggerConditions.lua`, `Data/Cooldowns.lua` and the trigger
+  conditions that depend on them), and registering
+  `COMBAT_LOG_EVENT_UNFILTERED` was blocked.
+- The TOC loads `LibDualSpec-1.0` as an optional dependency.
+
+## v3.0.3 (2026-10-03)
+
+- **WoW: Forever:** changed the project ID handling so the addon works again
+  on Forever. `LibDualSpec-1.0` no longer errors on `PLAYER_LOGIN` when
+  neither the retail specialization API nor `GetActiveTalentGroup` exists; it
+  falls back to a single spec.
+
 ## v3.0.2 (2026-09-22)
 
 - **Fixed WoW: Forever.** The client identifies itself as the `Mainline`
